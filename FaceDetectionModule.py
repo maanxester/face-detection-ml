@@ -13,25 +13,25 @@ class FaceDetector():
         self.mpDraw = mp.solutions.drawing_utils
         self.faceDetection = self.mpFaceDetection.FaceDetection(self.minDetectionCon)
 
-    def findFaces(self, img, draw=True):
-        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    def findFaces(self, image, draw=True):
+        imgRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         self.results = self.faceDetection.process(imgRGB)
         bboxs = []
 
         if self.results.detections:
             for id, detection in enumerate(self.results.detections):
                 bboxC = detection.location_data.relative_bounding_box
-                ih, iw, ic = img.shape
+                ih, iw, ic = image.shape
                 bbox = int(bboxC.xmin * iw), int(bboxC.ymin * ih), \
                        int(bboxC.width * iw), int(bboxC.height * ih)
 
                 bboxs.append([id, bbox, detection.score])
                 if draw:
-                    img = self.fancyDraw(img, bbox)
-                    cv2.putText(img, f'{int(detection.score[0]*100)}%',
+                    image = self.fancyDraw(image, bbox)
+                    cv2.putText(image, f'{int(detection.score[0]*100)}%',
                             (bbox[0], bbox[1]-20),
                             cv2.FONT_HERSHEY_PLAIN, 2, (255, 0, 0), 2)
-        return img, bboxs
+        return image, bboxs
 
     def fancyDraw(self, img, bbox, l =30, t=5, rt=1):
         x, y, w, h = bbox
@@ -56,19 +56,19 @@ class FaceDetector():
 
 
 def main():
-    cap = cv2.VideoCapture('Videos/2.mp4')
+    capture = cv2.VideoCapture('Videos/2.mp4')
     pTime = 0
     detector = FaceDetector()
 
     while True:
-        success, img = cap.read()
-        img, bboxs = detector.findFaces(img)
+        success, image = capture.read()
+        image, bboxs = detector.findFaces(image)
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
-        cv2.putText(img, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
-        cv2.imshow("Image", img)
+        cv2.putText(image, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 255, 0), 2)
+        cv2.imshow("Image", image)
 
         cv2.waitKey(20)
 
